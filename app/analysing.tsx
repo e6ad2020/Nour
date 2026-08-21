@@ -1,10 +1,15 @@
-
 import { Feather } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { StyleSheet, View, useColorScheme } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/theme';
+import { Button } from 'heroui-native/button';
+import { Card } from 'heroui-native/card';
+import { Chip } from 'heroui-native/chip';
+import { Spinner } from 'heroui-native/spinner';
+import { Text } from 'heroui-native/text';
 
 export default function AnalysingScreen() {
   const params = useLocalSearchParams();
@@ -15,7 +20,7 @@ export default function AnalysingScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      let interval: NodeJS.Timeout;
+      let interval: ReturnType<typeof setInterval>;
       setPercentage(0);
 
       interval = setInterval(() => {
@@ -36,92 +41,97 @@ export default function AnalysingScreen() {
     if (percentage === 100) {
       router.replace({ pathname: '/results', params: { images: params.images } });
     }
-  }, [percentage]);
+  }, [percentage, params.images]);
 
   const animatedStyle = useAnimatedStyle(() => {
     progress.value = withTiming(percentage, { duration: 50 });
     return {};
   });
 
-  const styles = getStyles(colors);
-
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      {/* Top Header Bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => router.push('/')} style={styles.backButton}>
+        <Button
+          variant="ghost"
+          size="sm"
+          isIconOnly
+          onPress={() => router.push('/')}
+          className="w-10 h-10 rounded-full items-center justify-center"
+        >
           <Feather name="chevron-left" size={28} color="#333D47" />
-        </TouchableOpacity>
+        </Button>
       </View>
-      <View style={styles.analysingButton}>
-        <Text style={styles.analysingText}>Analysing</Text>
+
+      {/* Main Centered Content */}
+      <View style={styles.centerContent}>
+        {/* Status Badge */}
+        <Chip
+          variant="primary"
+          color="accent"
+          size="lg"
+          className="px-8 py-3 mb-8 shadow-sm self-center"
+        >
+          Analysing
+        </Chip>
+
+        {/* Progress Card */}
+        <Card className="w-72 h-72 items-center justify-center rounded-3xl bg-surface shadow-md border border-border">
+          <Card.Body className="items-center justify-center p-6 w-full gap-4">
+            <View style={styles.percentageRow}>
+              <Animated.Text style={[styles.percentageNumber, animatedStyle]}>
+                {percentage}
+              </Animated.Text>
+              <Text.Heading type="h2" style={styles.percentageSymbol}>
+                %
+              </Text.Heading>
+            </View>
+            <Spinner color="default" size="lg" className="mt-2" />
+          </Card.Body>
+        </Card>
       </View>
-      <View style={styles.card}>
-        <View style={styles.percentageContainer}>
-          <Animated.Text style={[styles.percentageNumber, animatedStyle]}>{percentage}</Animated.Text>
-          <Text style={styles.percentageSymbol}>%</Text>
-        </View>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
-const getStyles = (colors) => StyleSheet.create({
-  container: {
+const styles = StyleSheet.create({
+  safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
   },
   topBar: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    zIndex: 2,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    zIndex: 10,
   },
-  backButton: {
-    padding: 8,
-  },
-  analysingButton: {
-    backgroundColor: colors.tint,
-    paddingHorizontal: 40,
-    paddingVertical: 15,
-    borderRadius: 20,
-    marginBottom: 40,
-  },
-  analysingText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Cairo',
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    width: 250,
-    height: 250,
+  centerContent: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    paddingHorizontal: 24,
+    marginTop: -40,
   },
-  percentageContainer: {
+  percentageRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   percentageNumber: {
-    fontSize: 80,
+    fontSize: 76,
     fontWeight: 'bold',
     fontFamily: 'Cairo',
     color: '#333D47',
+    textAlign: 'center',
+    includeFontPadding: false,
   },
   percentageSymbol: {
-    fontSize: 40,
+    fontSize: 34,
     fontWeight: 'bold',
     fontFamily: 'Cairo',
-    color: '#333D47',
+    color: '#007bff',
+    marginLeft: 4,
+    includeFontPadding: false,
   },
 });

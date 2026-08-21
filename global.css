@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import "uniwind";
+@import "heroui-native/styles";
+
+@source "./node_modules/heroui-native/lib";
+
+:root {
+  --accent: #007bff;
+  --accent-foreground: #ffffff;
+  --accent-soft: rgba(0, 123, 255, 0.12);
+  --accent-hover: #0056b3;
+}
+
+@theme {
+  --font-cairo: Cairo;
+  --color-accent: #007bff;
+  --color-accent-foreground: #ffffff;
+  --color-primary: #007bff;
+  --color-primary-dark: #0056b3;
+}

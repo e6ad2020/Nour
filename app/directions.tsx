@@ -1,10 +1,17 @@
 import { Colors } from '@/constants/theme';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, useColorScheme } from 'react-native';
+import React, { ComponentProps, useEffect, useRef, useState } from 'react';
+import { Dimensions, NativeSyntheticEvent, NativeScrollEvent, Platform, ScrollView, StyleSheet, View, useColorScheme } from 'react-native';
+import { Button } from 'heroui-native/button';
+import { Card } from 'heroui-native/card';
+import { Text } from 'heroui-native/text';
 
-const onboardingData = [
+const onboardingData: {
+  icon: ComponentProps<typeof MaterialCommunityIcons>['name'];
+  title: string;
+  subtitle: string;
+}[] = [
   {
     icon: 'image-filter-center-focus-weak',
     title: 'Prepare the lens',
@@ -40,7 +47,7 @@ export default function DirectionsScreen() {
     return () => clearTimeout(timer);
   }, [currentIndex]);
 
-  const handleScroll = (event: any) => {
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / width);
     setCurrentIndex(index);
@@ -52,9 +59,16 @@ export default function DirectionsScreen() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+      <Button
+        variant="ghost"
+        size="sm"
+        isIconOnly
+        onPress={() => router.back()}
+        style={styles.backButton}
+      >
         <Feather name="chevron-left" size={28} color="#333D47" />
-      </TouchableOpacity>
+      </Button>
+
       <ScrollView
         ref={scrollViewRef}
         horizontal
@@ -65,12 +79,23 @@ export default function DirectionsScreen() {
       >
         {onboardingData.map((item, index) => (
           <View key={index} style={styles.slide}>
-            <MaterialCommunityIcons name={item.icon} size={200} color={colors.tint} />
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.subtitle}>{item.subtitle}</Text>
+            <Card className="w-full max-w-sm p-6 items-center justify-center rounded-3xl bg-surface shadow-sm border border-border">
+              <Card.Header className="items-center mb-4">
+                <MaterialCommunityIcons name={item.icon} size={160} color={colors.tint} />
+                <Text.Heading type="h2" style={styles.title}>
+                  {item.title}
+                </Text.Heading>
+              </Card.Header>
+              <Card.Body className="items-center">
+                <Text.Paragraph style={styles.subtitle}>
+                  {item.subtitle}
+                </Text.Paragraph>
+              </Card.Body>
+            </Card>
           </View>
         ))}
       </ScrollView>
+
       <View style={styles.pagination}>
         {onboardingData.map((_, index) => (
           <View
@@ -79,17 +104,20 @@ export default function DirectionsScreen() {
           />
         ))}
       </View>
-      <TouchableOpacity
-        style={styles.nextButton}
+
+      <Button
+        variant="primary"
+        size="lg"
+        className="absolute bottom-20 self-center px-12"
         onPress={handleNext}
       >
-        <Text style={styles.nextButtonText}>Start scan</Text>
-      </TouchableOpacity>
+        Start scan
+      </Button>
     </View>
   );
 }
 
-const getStyles = (colors) => StyleSheet.create({
+const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -103,15 +131,15 @@ const getStyles = (colors) => StyleSheet.create({
       default: {
         alignItems: 'center',
         justifyContent: 'center',
-        
-      }
-    })
+      },
+    }),
   },
   backButton: {
     position: 'absolute',
     top: 50,
     left: 20,
     zIndex: 2,
+    padding: 8,
   },
   slide: {
     width: width,
@@ -119,22 +147,20 @@ const getStyles = (colors) => StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     fontFamily: 'Cairo',
     color: '#333D47',
     textAlign: 'center',
-    marginBottom: 10,
+    marginTop: 10,
   },
   subtitle: {
     fontSize: 16,
     fontFamily: 'Cairo',
-    color: '#333D47',
+    color: '#546E7A',
     textAlign: 'center',
-    marginBottom: 40,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
   pagination: {
     position: 'absolute',
@@ -153,20 +179,5 @@ const getStyles = (colors) => StyleSheet.create({
   },
   activeDot: {
     backgroundColor: colors.tint,
-  },
-  nextButton: {
-    backgroundColor: colors.tint,
-    paddingHorizontal: 40,
-    paddingVertical: 15,
-    borderRadius: 10,
-    position: 'absolute',
-    bottom: 80,
-    alignSelf: 'center',
-  },
-  nextButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'Cairo',
   },
 });

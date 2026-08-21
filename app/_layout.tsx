@@ -1,15 +1,15 @@
-import 'react-native-gesture-handler';
+import '../global.css';
+import { HeroUINativeProvider } from 'heroui-native/provider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import { CardStyleInterpolators } from '@react-navigation/stack';
 import { useEffect } from 'react';
 import { setBackgroundColorAsync } from 'expo-system-ui';
-import { I18nManager, Platform } from 'react-native';
+import { I18nManager } from 'react-native';
+import { Uniwind } from 'uniwind';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useLoadFonts } from '@/hooks/use-load-fonts';
 import { Colors } from '@/constants/theme';
 
@@ -35,19 +35,13 @@ const MyLightTheme = {
   },
 };
 
-const MyDarkTheme = {
-  ...DarkTheme,
-  colors: {
-    ...DarkTheme.colors,
-    background: Colors.dark.background,
-    primary: Colors.dark.tint,
-    text: Colors.dark.text,
-  },
-};
-
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const { fontsLoaded, fontError } = useLoadFonts();
+
+  useEffect(() => {
+    // Explicitly lock Uniwind theme to light mode to match Nour's light design
+    Uniwind.setTheme('light');
+  }, []);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
@@ -61,20 +55,22 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent' }}>
-      <ThemeProvider value={colorScheme === 'dark' ? MyDarkTheme : MyLightTheme}>
-        <Stack
-          screenOptions={{
-            cardStyleInterpolator: CardStyleInterpolators.forFade,
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="camera" options={{ headerShown: false }} />
-          <Stack.Screen name="results" options={{ headerShown: false }} />
-          <Stack.Screen name="analysing" options={{ headerShown: false }} />
-          <Stack.Screen name="directions" options={{ headerShown: false }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+      <HeroUINativeProvider>
+        <ThemeProvider value={MyLightTheme}>
+          <Stack
+            screenOptions={{
+              animation: 'fade',
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="camera" options={{ headerShown: false }} />
+            <Stack.Screen name="results" options={{ headerShown: false }} />
+            <Stack.Screen name="analysing" options={{ headerShown: false }} />
+            <Stack.Screen name="directions" options={{ headerShown: false }} />
+          </Stack>
+          <StatusBar style="dark" />
+        </ThemeProvider>
+      </HeroUINativeProvider>
     </GestureHandlerRootView>
   );
 }

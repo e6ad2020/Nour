@@ -1,41 +1,55 @@
-
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import React, { useState, useRef, useCallback } from 'react';
+import { View, StyleSheet, useColorScheme } from 'react-native';
+import { CameraView, useCameraPermissions, CameraType } from 'expo-camera';
 import { MaterialIcons, Feather } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { Colors } from '@/constants/theme';
+import { Button } from 'heroui-native/button';
+import { Card } from 'heroui-native/card';
+import { Chip } from 'heroui-native/chip';
+import { Text } from 'heroui-native/text';
+import { Alert } from 'heroui-native/alert';
 
-const Notification = ({ message, onHide, colors }) => {
-  const translateX = useSharedValue(-300);
-  const scale = useSharedValue(0.8);
+interface NotificationProps {
+  message: string;
+  onHide: () => void;
+}
 
-  useEffect(() => {
-    translateX.value = withTiming(0, { duration: 500, easing: Easing.out(Easing.exp) });
-    scale.value = withTiming(1, { duration: 500, easing: Easing.out(Easing.exp) });
+const CameraAlert = ({ message, onHide }: NotificationProps) => {
+  const translateY = useSharedValue(-100);
+  const opacity = useSharedValue(0);
+
+  React.useEffect(() => {
+    translateY.value = withTiming(0, { duration: 400, easing: Easing.out(Easing.exp) });
+    opacity.value = withTiming(1, { duration: 400 });
 
     const timer = setTimeout(() => {
-      translateX.value = withTiming(-300, { duration: 300 });
-      scale.value = withTiming(0.8, { duration: 300 });
+      translateY.value = withTiming(-100, { duration: 300 });
+      opacity.value = withTiming(0, { duration: 300 });
       setTimeout(onHide, 300);
-    }, 2000);
+    }, 2500);
 
     return () => clearTimeout(timer);
-  }, [message]);
+  }, [message, onHide, opacity, translateY]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: translateX.value }, { scale: scale.value }],
+      transform: [{ translateY: translateY.value }],
+      opacity: opacity.value,
     };
   });
 
-  const styles = getStyles(colors);
-
   return (
-    <Animated.View style={[styles.notification, animatedStyle]}>
-      <Text style={styles.notificationText}>{message}</Text>
+    <Animated.View style={[styles.alertContainer, animatedStyle]}>
+      <Alert status="accent" className="rounded-2xl shadow-lg border border-white/20">
+        <Alert.Indicator />
+        <Alert.Content>
+          <Alert.Title className="font-cairo text-white font-bold">{message}</Alert.Title>
+        </Alert.Content>
+      </Alert>
     </Animated.View>
   );
 };
@@ -43,57 +57,69 @@ const Notification = ({ message, onHide, colors }) => {
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
-  const [facing, setFacing] = useState('back');
+  const [facing, setFacing] = useState<CameraType>('back');
   const [notification, setNotification] = useState<string | null>(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
-  const styles = getStyles(colors);
 
   useFocusEffect(
     useCallback(() => {
-      console.log('Camera screen focused');
-      // Reset captured images when the screen is blurred
       return () => {
-        console.log('Clearing captured images');
         setCapturedImages([]);
       };
     }, [])
   );
 
   if (!permission) {
-    return <View />;
+    return <View style={[styles.container, { backgroundColor: colors.background }]} />;
   }
 
   if (!permission.granted) {
     return (
-      <View style={styles.permissionContainer}>
-        <Text style={styles.permissionText}>We need your permission to show the camera</Text>
-        <TouchableOpacity onPress={requestPermission} style={styles.button}>
-          <Text style={styles.buttonText}>Grant Permission</Text>
-        </TouchableOpacity>
-      </View>
+      <SafeAreaView style={[styles.permissionContainer, { backgroundColor: colors.background }]}>
+        <Card className="p-6 items-center rounded-3xl bg-surface max-w-sm shadow-md border border-border">
+          <Card.Header className="items-center mb-2">
+            <Feather name="camera-off" size={48} color={colors.tint} />
+            <Text.Heading type="h3" className="text-center font-bold font-cairo mt-3 text-foreground">
+              Camera Access Required
+            </Text.Heading>
+          </Card.Header>
+          <Card.Body className="items-center">
+            <Text.Paragraph className="text-center font-cairo text-muted mb-5">
+              We need your permission to access the camera for eye screening.
+            </Text.Paragraph>
+            <Button variant="primary" size="lg" className="w-full" onPress={requestPermission}>
+              Grant Permission
+            </Button>
+          </Card.Body>
+        </Card>
+      </SafeAreaView>
     );
   }
 
   const takePicture = async () => {
     if (cameraRef.current && isCameraReady) {
+      const ref = cameraRef.current;
       setIsCapturing(true);
       setTimeout(async () => {
         try {
-          const photo = await cameraRef.current.takePictureAsync({ quality: 0.8 });
-          const newImages = [...capturedImages, photo.uri];
-          setCapturedImages(newImages);
-          
-          if (newImages.length < 3) {
-            setNotification(`Picture ${newImages.length} captured. ${3 - newImages.length} more to go.`);
-          } else {
-            router.push({
-              pathname: '/analysing',
-              params: { images: JSON.stringify(newImages) }
-            });
+          if (!ref) return;
+          const photo = await ref.takePictureAsync({ quality: 0.8 });
+          if (photo) {
+            const newImages = [...capturedImages, photo.uri];
+            setCapturedImages(newImages);
+            
+            if (newImages.length < 3) {
+              setNotification(`Picture ${newImages.length} captured. ${3 - newImages.length} more to go.`);
+            } else {
+              router.push({
+                pathname: '/analysing',
+                params: { images: JSON.stringify(newImages) }
+              });
+            }
           }
         } catch (error) {
           console.error("Error taking picture:", error);
@@ -140,7 +166,9 @@ export default function CameraScreen() {
 
   return (
     <View style={styles.container}>
-      {notification && <Notification message={notification} onHide={() => setNotification(null)} colors={colors} />}
+      {Boolean(notification) && (
+        <CameraAlert message={notification as string} onHide={() => setNotification(null)} />
+      )}
       <CameraView 
         style={styles.camera} 
         ref={cameraRef} 
@@ -150,62 +178,77 @@ export default function CameraScreen() {
       
       {isCapturing && <View style={styles.shutter} />}
 
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => router.push('/')} style={styles.backButton}>
-          <Feather name="chevron-left" size={28} color="white" />
-        </TouchableOpacity>
-      </View>
+      <SafeAreaView style={styles.overlaySafeArea} pointerEvents="box-none">
+        {/* Top Bar with Back Button and Capture Counter Chip */}
+        <View style={styles.topBar} pointerEvents="box-none">
+          <Button
+            variant="ghost"
+            size="sm"
+            isIconOnly
+            className="w-11 h-11 rounded-full bg-black/40 items-center justify-center"
+            onPress={() => router.push('/')}
+          >
+            <Feather name="chevron-left" size={28} color="white" />
+          </Button>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Captured {capturedImages.length}/3 images</Text>
-        <View style={styles.indicatorContainer}>
-          <View style={[
-            styles.indicator, 
-            capturedImages.length >= 1 ? styles.activeIndicator : styles.inactiveIndicator
-          ]} />
-          <View style={[
-            styles.indicator, 
-            capturedImages.length >= 2 ? styles.activeIndicator : styles.inactiveIndicator
-          ]} />
-          <View style={[
-            styles.indicator, 
-            capturedImages.length >= 3 ? styles.activeIndicator : styles.inactiveIndicator
-          ]} />
+          <Chip variant="primary" color="accent" size="md" className="shadow-lg">
+            Captured {capturedImages.length}/3 images
+          </Chip>
+
+          <View style={{ width: 44 }} />
         </View>
-      </View>
 
-      <View style={styles.bottomBar}>
-        <TouchableOpacity onPress={pickImages} style={styles.galleryButton}>
-          <MaterialIcons name="photo-library" size={28} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={takePicture} style={styles.captureButton} disabled={!isCameraReady || isCapturing}>
-          <MaterialIcons name="camera" size={36} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={toggleCameraFacing} style={styles.switchButton}>
-          <MaterialIcons name="flip-camera-ios" size={28} color="white" />
-        </TouchableOpacity>
-      </View>
+        {/* Bottom Controls Bar with HeroUI Buttons */}
+        <View style={styles.bottomBar}>
+          {/* Gallery Button */}
+          <Button
+            variant="secondary"
+            size="lg"
+            isIconOnly
+            className="w-14 h-14 rounded-full items-center justify-center shadow-lg bg-black/40 border border-white/20"
+            onPress={pickImages}
+          >
+            <MaterialIcons name="photo-library" size={26} color="white" />
+          </Button>
+
+          {/* Shutter Button */}
+          <Button
+            variant="primary"
+            size="lg"
+            isIconOnly
+            className="w-20 h-20 rounded-full border-4 border-white shadow-2xl items-center justify-center bg-accent"
+            onPress={takePicture}
+            isDisabled={!isCameraReady || isCapturing}
+          >
+            <MaterialIcons name="camera" size={36} color="white" />
+          </Button>
+
+          {/* Flip Camera Button */}
+          <Button
+            variant="secondary"
+            size="lg"
+            isIconOnly
+            className="w-14 h-14 rounded-full items-center justify-center shadow-lg bg-black/40 border border-white/20"
+            onPress={toggleCameraFacing}
+          >
+            <MaterialIcons name="flip-camera-ios" size={26} color="white" />
+          </Button>
+        </View>
+      </SafeAreaView>
     </View>
   );
 }
 
-const getStyles = (colors) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#000',
   },
   permissionContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.background,
     padding: 20,
-  },
-  permissionText: {
-    textAlign: 'center',
-    fontSize: 18,
-    fontFamily: 'Cairo',
-    marginBottom: 20,
   },
   camera: {
     ...StyleSheet.absoluteFillObject,
@@ -215,116 +258,31 @@ const getStyles = (colors) => StyleSheet.create({
     backgroundColor: 'black',
     zIndex: 10,
   },
+  overlaySafeArea: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
   topBar: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 10,
     zIndex: 2,
   },
-  backButton: {
-    padding: 8,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    borderRadius: 50,
-  },
   bottomBar: {
-    position: 'absolute',
-    bottom: 50,
-    left: 0,
-    right: 0,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'center',
     paddingHorizontal: 30,
+    paddingBottom: 30,
+    zIndex: 2,
   },
-  
-  button: {
-    backgroundColor: colors.tint,
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    margin: 10,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontFamily: 'Cairo',
-  },
-  captureButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.tint,
-    borderRadius: 50,
-    width: 80,
-    height: 80,
-    borderWidth: 4,
-    borderColor: 'white',
-  },
-  switchButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.tint,
-    borderRadius: 30,
-    width: 60,
-    height: 60,
-  },
-  galleryButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.tint,
-    borderRadius: 30,
-    width: 60,
-    height: 60,
-  },
-  infoContainer: {
+  alertContainer: {
     position: 'absolute',
-    top: 50,
+    top: 100,
     left: 20,
     right: 20,
-    alignItems: 'center',
-    zIndex: 1,
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 10,
-    borderRadius: 20,
-    elevation: 5,
-  },
-  infoText: {
-    fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    marginBottom: 5,
-    fontFamily: 'Cairo',
-  },
-  indicatorContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  indicator: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginHorizontal: 3,
-  },
-  activeIndicator: {
-    backgroundColor: colors.tint,
-  },
-  inactiveIndicator: {
-    backgroundColor: '#ccc',
-  },
-  notification: {
-    position: 'absolute',
-    top: 120,
-    left: 0,
-    backgroundColor: colors.tint,
-    padding: 10,
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
     zIndex: 100,
-  },
-  notificationText: {
-    color: 'white',
-    fontSize: 14,
-    fontFamily: 'Cairo',
   },
 });

@@ -3,9 +3,16 @@ import { Colors } from '@/constants/theme';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { memo, useEffect, useState } from 'react';
-import { FlatList, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { FlatList, Platform, ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
+import { Button } from 'heroui-native/button';
+import { Card } from 'heroui-native/card';
+import { Chip } from 'heroui-native/chip';
+import { Separator } from 'heroui-native/separator';
+import { PressableFeedback } from 'heroui-native/pressable-feedback';
+import { Text as HeroText } from 'heroui-native/text';
 
 // Mock data for the diabetic retinopathy screening results
 const screeningData = [
@@ -18,16 +25,20 @@ const screeningData = [
   },
 ];
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+interface ResultCardProps {
+  item: typeof screeningData[0];
+  index: number;
+  colors: typeof Colors.light;
+}
 
-const ResultCard = ({ item, index, colors }) => {
+const ResultCard = ({ item, index, colors }: ResultCardProps) => {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(20);
 
   useEffect(() => {
     opacity.value = withDelay(index * 200, withTiming(1, { duration: 500 }));
     translateY.value = withDelay(index * 200, withTiming(0, { duration: 500 }));
-  }, []);
+  }, [index, opacity, translateY]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -37,44 +48,62 @@ const ResultCard = ({ item, index, colors }) => {
   const styles = getStyles(colors);
 
   return (
-    <Animated.View style={[styles.card, animatedStyle]}>
-      <View style={styles.cardRow}>
-        <Feather name="check-circle" size={24} color={colors.tint} style={styles.icon} />
-        <View style={styles.cardTextContainer}>
-          <Text style={styles.cardLabel}>Result</Text>
-          <Text style={styles.cardValue}>{item.result}</Text>
-        </View>
-      </View>
-      <View style={styles.cardRow}>
-        <Feather name="info" size={24} color={colors.tint} style={styles.icon} />
-        <View style={styles.cardTextContainer}>
-          <Text style={styles.cardLabel}>Main Medical Cause</Text>
-          <Text style={styles.cardValue}>{item.mainMedicalCause}</Text>
-        </View>
-      </View>
-      <View style={styles.cardRow}>
-        <Feather name="message-circle" size={24} color={colors.tint} style={styles.icon} />
-        <View style={styles.cardTextContainer}>
-          <Text style={styles.cardLabel}>Comment</Text>
-          <Text style={styles.cardValue}>{item.comment}</Text>
-        </View>
-      </View>
-      <View style={styles.cardRow}>
-        <Feather name="clipboard" size={24} color={colors.tint} style={styles.icon} />
-        <View style={styles.cardTextContainer}>
-          <Text style={styles.cardLabel}>Medical Recommendation</Text>
-          <Text style={styles.cardValue}>{item.medicalRecommendation}</Text>
-        </View>
-      </View>
+    <Animated.View style={[animatedStyle]}>
+      <Card className="bg-surface rounded-2xl p-5 mb-5 shadow-sm border border-border">
+        <Card.Header className="flex-row items-center mb-2 pb-2">
+          <Feather name="check-circle" size={26} color={colors.tint} style={styles.icon} />
+          <View style={styles.cardTextContainer}>
+            <HeroText.Heading type="h4" style={styles.cardLabel}>Result</HeroText.Heading>
+            <Chip variant="primary" color="accent" size="sm" className="mt-1 self-start">
+              {item.result}
+            </Chip>
+          </View>
+        </Card.Header>
+
+        <Separator className="my-3" />
+
+        <Card.Body className="gap-3">
+          <View style={styles.cardRow}>
+            <Feather name="info" size={22} color={colors.tint} style={styles.icon} />
+            <View style={styles.cardTextContainer}>
+              <HeroText.Heading type="h4" style={styles.cardLabel}>Main Medical Cause</HeroText.Heading>
+              <HeroText.Paragraph style={styles.cardValue}>{item.mainMedicalCause}</HeroText.Paragraph>
+            </View>
+          </View>
+
+          <Separator className="my-2" />
+
+          <View style={styles.cardRow}>
+            <Feather name="message-circle" size={22} color={colors.tint} style={styles.icon} />
+            <View style={styles.cardTextContainer}>
+              <HeroText.Heading type="h4" style={styles.cardLabel}>Comment</HeroText.Heading>
+              <HeroText.Paragraph style={styles.cardValue}>{item.comment}</HeroText.Paragraph>
+            </View>
+          </View>
+
+          <Separator className="my-2" />
+
+          <View style={styles.cardRow}>
+            <Feather name="clipboard" size={22} color={colors.tint} style={styles.icon} />
+            <View style={styles.cardTextContainer}>
+              <HeroText.Heading type="h4" style={styles.cardLabel}>Medical Recommendation</HeroText.Heading>
+              <HeroText.Paragraph style={styles.cardValue}>{item.medicalRecommendation}</HeroText.Paragraph>
+            </View>
+          </View>
+        </Card.Body>
+      </Card>
     </Animated.View>
   );
 };
 
-const MemoizedImage = memo(({ uri, onPress }: { uri: string, onPress: () => void }) => (
-  <TouchableOpacity onPress={onPress}>
-    <Image source={{ uri }} style={getStyles(Colors.light).previewImage} />
-  </TouchableOpacity>
-));
+const MemoizedImage = memo(function MemoizedImage({ uri, onPress }: { uri: string; onPress: () => void }) {
+  return (
+    <PressableFeedback onPress={onPress}>
+      <Image source={{ uri }} style={getStyles(Colors.light).previewImage} contentFit="cover" />
+    </PressableFeedback>
+  );
+});
+MemoizedImage.displayName = 'MemoizedImage';
 
 export default function ResultsScreen() {
   const params = useLocalSearchParams();
@@ -84,7 +113,6 @@ export default function ResultsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const titleOpacity = useSharedValue(0);
   const titleTranslateY = useSharedValue(-20);
-  const buttonScale = useSharedValue(1);
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const styles = getStyles(colors);
@@ -104,21 +132,21 @@ export default function ResultsScreen() {
   useEffect(() => {
     titleOpacity.value = withTiming(1, { duration: 500 });
     titleTranslateY.value = withTiming(0, { duration: 500 });
-  }, []);
+  }, [titleOpacity, titleTranslateY]);
 
   const titleAnimatedStyle = useAnimatedStyle(() => ({
     opacity: titleOpacity.value,
     transform: [{ translateY: titleTranslateY.value }],
   }));
 
-  const buttonAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScale.value }],
-  }));
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Animated.Text style={[styles.title, titleAnimatedStyle]}>Diabetic Retinopathy Screening Results</Animated.Text>
+        <Animated.View style={titleAnimatedStyle}>
+          <HeroText.Heading type="h1" style={styles.title}>
+            Diabetic Retinopathy Screening Results
+          </HeroText.Heading>
+        </Animated.View>
 
         <FlatList
           data={screeningData}
@@ -128,7 +156,7 @@ export default function ResultsScreen() {
         />
 
         <View style={styles.imagePreviewContainer}>
-          <Text style={styles.imagePreviewTitle}>Captured Images</Text>
+          <HeroText.Heading type="h2" style={styles.imagePreviewTitle}>Captured Images</HeroText.Heading>
           <FlatList
             data={images}
             renderItem={({ item, index }) => (
@@ -151,14 +179,14 @@ export default function ResultsScreen() {
         </View>
       </ScrollView>
 
-      <AnimatedTouchableOpacity
-        style={[styles.button, buttonAnimatedStyle]}
-        onPressIn={() => buttonScale.value = withTiming(0.95)}
-        onPressOut={() => buttonScale.value = withTiming(1)}
+      <Button
+        variant="primary"
+        size="lg"
+        className="bg-accent mx-5 mb-5 py-4"
         onPress={() => router.push('/')}
       >
-        <Text style={styles.buttonText}>Back to Home</Text>
-      </AnimatedTouchableOpacity>
+        Back to Home
+      </Button>
 
       <ImageViewerModal
         visible={isModalVisible}
@@ -170,7 +198,7 @@ export default function ResultsScreen() {
   );
 }
 
-const getStyles = (colors) => StyleSheet.create({
+const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -180,51 +208,39 @@ const getStyles = (colors) => StyleSheet.create({
     paddingBottom: 100,
   },
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 25,
+    marginBottom: 20,
     color: '#333D47',
     fontFamily: 'Cairo',
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
   },
   cardRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 15,
   },
   icon: {
-    marginRight: 15,
+    marginRight: 12,
     marginTop: 2,
   },
   cardTextContainer: {
     flex: 1,
   },
   cardLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#546E7A',
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#333D47',
     fontFamily: 'Cairo',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   cardValue: {
-    fontSize: 16,
-    color: '#455A64',
+    fontSize: 15,
+    color: '#546E7A',
     fontFamily: 'Cairo',
-    lineHeight: 24,
+    lineHeight: 22,
   },
   imagePreviewContainer: {
-    marginTop: 20,
+    marginTop: 15,
   },
   imagePreviewTitle: {
     fontSize: 20,
@@ -236,28 +252,7 @@ const getStyles = (colors) => StyleSheet.create({
   previewImage: {
     width: 100,
     height: 100,
-    borderRadius: 10,
+    borderRadius: 12,
     marginRight: 10,
-  },
-  button: {
-    position: 'absolute',
-    bottom: 30,
-    left: 20,
-    right: 20,
-    backgroundColor: colors.tint,
-    paddingVertical: 16,
-    borderRadius: 10,
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    fontFamily: 'Cairo',
   },
 });
