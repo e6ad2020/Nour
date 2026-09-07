@@ -1,36 +1,46 @@
-import React, { PropsWithChildren } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Accordion } from 'heroui-native/accordion';
-import { Text } from 'heroui-native/text';
+import React, { PropsWithChildren, useState } from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export function Collapsible({ children, title }: PropsWithChildren & { title: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const theme = useColorScheme() ?? 'light';
+
   return (
-    <Accordion selectionMode="single" isCollapsible style={styles.container}>
-      <Accordion.Item value="1" className="border-0">
-        <Accordion.Trigger className="flex-row items-center py-2 gap-2">
-          <Accordion.Indicator />
-          <Text.Heading type="h4" style={styles.title}>{title}</Text.Heading>
-        </Accordion.Trigger>
-        <Accordion.Content style={styles.content}>
-          <View>{children}</View>
-        </Accordion.Content>
-      </Accordion.Item>
-    </Accordion>
+    <ThemedView>
+      <TouchableOpacity
+        style={styles.heading}
+        onPress={() => setIsOpen((value) => !value)}
+        activeOpacity={0.8}>
+        <IconSymbol
+          name="chevron.right"
+          size={18}
+          weight="medium"
+          color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+          style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }}
+        />
+
+        <ThemedText type="defaultSemiBold">{title}</ThemedText>
+      </TouchableOpacity>
+      {isOpen && <ThemedView style={styles.content}>{children}</ThemedView>}
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
-    fontFamily: 'Cairo',
-    color: '#333D47',
+  heading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   content: {
     marginTop: 6,
-    paddingLeft: 24,
+    marginLeft: 24,
   },
 });
+

@@ -24,17 +24,19 @@ const CameraAlert = ({ message, onHide }: NotificationProps) => {
   const opacity = useSharedValue(0);
 
   React.useEffect(() => {
-    translateY.value = withTiming(0, { duration: 400, easing: Easing.out(Easing.exp) });
+    translateY.value = withTiming(0, { duration: 400, easing: Easing.out(Easing.cubic) });
     opacity.value = withTiming(1, { duration: 400 });
 
     const timer = setTimeout(() => {
-      translateY.value = withTiming(-100, { duration: 300 });
-      opacity.value = withTiming(0, { duration: 300 });
+      translateY.value = withTiming(-100, { duration: 300, easing: Easing.in(Easing.cubic) });
+      opacity.value = withTiming(0, { duration: 300 }, () => {
+        'worklet';
+      });
       setTimeout(onHide, 300);
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, [message, onHide, opacity, translateY]);
+  }, [message, onHide, translateY, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -46,7 +48,9 @@ const CameraAlert = ({ message, onHide }: NotificationProps) => {
   return (
     <Animated.View style={[styles.alertContainer, animatedStyle]}>
       <Alert status="accent" className="rounded-2xl shadow-lg border border-white/20">
-        <Alert.Indicator />
+        <Alert.Indicator>
+          <Feather name="info" size={18} color="#ffffff" />
+        </Alert.Indicator>
         <Alert.Content>
           <Alert.Title className="font-cairo text-white font-bold">{message}</Alert.Title>
         </Alert.Content>

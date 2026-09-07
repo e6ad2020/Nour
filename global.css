@@ -9,6 +9,13 @@
   --accent-foreground: #ffffff;
   --accent-soft: rgba(0, 123, 255, 0.12);
   --accent-hover: #0056b3;
+
+  --color-default-hover: #e5e7eb;
+  --color-accent-hover: #0056b3;
+  --color-danger-hover: #dc2626;
+  --color-danger-soft-hover: #fca5a5;
+  --color-success-hover: #16a34a;
+  --color-warning-hover: #d97706;
 }
 
 @theme {
