@@ -2,11 +2,12 @@ import { Colors } from '@/constants/theme';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { Image, StyleSheet, useColorScheme, View } from 'react-native';
+import { Image, StyleSheet, useColorScheme } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import { Button } from 'heroui-native/button';
 import { Card } from 'heroui-native/card';
 import { Chip } from 'heroui-native/chip';
+import { Surface } from 'heroui-native/surface';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function HomeScreen() {
   const styles = getStyles(colors);
 
   return (
-    <View style={styles.container}>
+    <Surface variant="default" style={styles.container}>
       <Animated.View style={[styles.logoContainer, logoAnimatedStyle]}>
         <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
       </Animated.View>
@@ -59,13 +60,19 @@ export default function HomeScreen() {
       </Animated.View>
       
       <Animated.View style={[styles.scanCardWrapper, scanCardAnimatedStyle]}>
-        <Card className="p-8 items-center justify-center rounded-3xl bg-surface shadow-md border border-border">
-          <Card.Body className="items-center">
-            <Feather name="camera" size={60} color={colors.tint} />
+        <Card className="p-7 items-center justify-center rounded-3xl bg-surface shadow-md border border-border">
+          <Card.Body className="items-center w-full">
+            <Feather name="camera" size={54} color={colors.tint} />
+            <Card.Title className="text-xl font-bold font-cairo text-foreground mt-3 mb-1 text-center">
+              Eye Screening
+            </Card.Title>
+            <Card.Description className="text-sm font-cairo text-muted mb-4 text-center px-2">
+              Start a high-accuracy diabetic retinopathy retinal scan
+            </Card.Description>
             <Button
               variant="primary"
               size="lg"
-              className="mt-6 px-10 py-3.5"
+              className="mt-2 px-10 py-3.5 w-full"
               onPress={() => router.push('/directions')}
             >
               Get Started
@@ -73,7 +80,7 @@ export default function HomeScreen() {
           </Card.Body>
         </Card>
       </Animated.View>
-    </View>
+    </Surface>
   );
 }
 

@@ -3,6 +3,7 @@ import { Dimensions, Modal, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Button } from 'heroui-native/button';
+import { Chip } from 'heroui-native/chip';
 import { CloseButton } from 'heroui-native/close-button';
 
 const attentionMaps = [
@@ -68,16 +69,22 @@ export default function ImageViewerModal({ visible, imageUrl, imageIndex, onClos
       onRequestClose={handleClose}
     >
       <View style={styles.container}>
-        <CloseButton className="absolute top-12 right-5 z-20" onPress={handleClose} />
+        <View style={styles.headerBar}>
+          <Button 
+            variant="secondary"
+            size="sm"
+            className="bg-black/60 border border-white/20" 
+            onPress={() => setShowAttentionMap(prev => !prev)}
+          >
+            {showAttentionMap ? 'Original' : 'Attention Map'}
+          </Button>
 
-        <Button 
-          variant="secondary"
-          size="sm"
-          className="absolute top-12 left-5 z-20 bg-black/60 border border-white/20" 
-          onPress={() => setShowAttentionMap(prev => !prev)}
-        >
-          {showAttentionMap ? 'Original Image' : 'Attention Map'}
-        </Button>
+          <Chip variant="primary" color="accent" size="sm" className="shadow-lg">
+            Image {imageIndex + 1}
+          </Chip>
+
+          <CloseButton onPress={handleClose} />
+        </View>
 
         <GestureDetector gesture={pinchGesture}>
           <View style={styles.imageContainer}>
@@ -99,6 +106,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.92)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  headerBar: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    right: 20,
+    zIndex: 30,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   imageContainer: {
     flex: 1,

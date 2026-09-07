@@ -10,7 +10,7 @@ import { Colors } from '@/constants/theme';
 import { Button } from 'heroui-native/button';
 import { Card } from 'heroui-native/card';
 import { Chip } from 'heroui-native/chip';
-import { Text } from 'heroui-native/text';
+import { Surface } from 'heroui-native/surface';
 import { Alert } from 'heroui-native/alert';
 
 interface NotificationProps {
@@ -74,7 +74,7 @@ export default function CameraScreen() {
   );
 
   if (!permission) {
-    return <View style={[styles.container, { backgroundColor: colors.background }]} />;
+    return <Surface variant="default" style={styles.container} />;
   }
 
   if (!permission.granted) {
@@ -83,14 +83,14 @@ export default function CameraScreen() {
         <Card className="p-6 items-center rounded-3xl bg-surface max-w-sm shadow-md border border-border">
           <Card.Header className="items-center mb-2">
             <Feather name="camera-off" size={48} color={colors.tint} />
-            <Text.Heading type="h3" className="text-center font-bold font-cairo mt-3 text-foreground">
+            <Card.Title className="text-center font-bold font-cairo mt-3 text-foreground text-xl">
               Camera Access Required
-            </Text.Heading>
+            </Card.Title>
           </Card.Header>
-          <Card.Body className="items-center">
-            <Text.Paragraph className="text-center font-cairo text-muted mb-5">
+          <Card.Body className="items-center w-full">
+            <Card.Description className="text-center font-cairo text-muted mb-5 text-base">
               We need your permission to access the camera for eye screening.
-            </Text.Paragraph>
+            </Card.Description>
             <Button variant="primary" size="lg" className="w-full" onPress={requestPermission}>
               Grant Permission
             </Button>

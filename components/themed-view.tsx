@@ -10,12 +10,13 @@ export type ThemedViewProps = ViewProps & {
 };
 
 export function ThemedView({ style, lightColor, darkColor, variant = 'default', ...otherProps }: ThemedViewProps) {
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
+  const themeBg = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
+  const customBg = lightColor || darkColor ? themeBg : undefined;
 
   return (
     <Surface
       variant={variant}
-      style={[{ backgroundColor }, style]}
+      style={[customBg ? { backgroundColor: customBg } : undefined, style]}
       {...otherProps}
     />
   );

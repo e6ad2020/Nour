@@ -16,13 +16,14 @@ export function ThemedText({
   type = 'default',
   ...rest
 }: ThemedTextProps) {
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const themeColor = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const customColor = lightColor || darkColor ? themeColor : undefined;
   const heroType = type === 'title' ? 'h1' : type === 'subtitle' ? 'h2' : type === 'defaultSemiBold' ? 'h4' : 'body';
 
   return (
     <HeroText
       type={heroType}
-      style={[{ color }, style]}
+      style={[customColor ? { color: customColor } : undefined, style]}
       {...rest}
     />
   );

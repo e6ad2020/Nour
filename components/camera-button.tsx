@@ -1,5 +1,4 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Button } from 'heroui-native/button';
@@ -10,19 +9,12 @@ export function CameraButton() {
   return (
     <Button
       variant="ghost"
-      size="sm"
+      size="md"
       isIconOnly
-      style={styles.container}
+      className="rounded-full"
       onPress={() => router.push('/camera')}
     >
-      <MaterialIcons name="camera" size={24} color="#333D47" />
+      <MaterialIcons name="photo-camera" size={24} color="#007bff" />
     </Button>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

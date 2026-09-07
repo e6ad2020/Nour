@@ -12,6 +12,7 @@ import { Card } from 'heroui-native/card';
 import { Chip } from 'heroui-native/chip';
 import { Separator } from 'heroui-native/separator';
 import { PressableFeedback } from 'heroui-native/pressable-feedback';
+import { Surface } from 'heroui-native/surface';
 import { Text as HeroText } from 'heroui-native/text';
 
 // Mock data for the diabetic retinopathy screening results
@@ -53,8 +54,10 @@ const ResultCard = ({ item, index, colors }: ResultCardProps) => {
         <Card.Header className="flex-row items-center mb-2 pb-2">
           <Feather name="check-circle" size={26} color={colors.tint} style={styles.icon} />
           <View style={styles.cardTextContainer}>
-            <HeroText.Heading type="h4" style={styles.cardLabel}>Result</HeroText.Heading>
-            <Chip variant="primary" color="accent" size="sm" className="mt-1 self-start">
+            <HeroText.Heading type="h4" className="text-foreground font-cairo font-bold text-base mb-1">
+              Result
+            </HeroText.Heading>
+            <Chip variant="primary" color="accent" size="sm" className="self-start shadow-sm">
               {item.result}
             </Chip>
           </View>
@@ -66,8 +69,12 @@ const ResultCard = ({ item, index, colors }: ResultCardProps) => {
           <View style={styles.cardRow}>
             <Feather name="info" size={22} color={colors.tint} style={styles.icon} />
             <View style={styles.cardTextContainer}>
-              <HeroText.Heading type="h4" style={styles.cardLabel}>Main Medical Cause</HeroText.Heading>
-              <HeroText.Paragraph style={styles.cardValue}>{item.mainMedicalCause}</HeroText.Paragraph>
+              <HeroText.Heading type="h4" className="text-foreground font-cairo font-bold text-base mb-0.5">
+                Main Medical Cause
+              </HeroText.Heading>
+              <HeroText.Paragraph className="text-muted font-cairo text-sm leading-relaxed">
+                {item.mainMedicalCause}
+              </HeroText.Paragraph>
             </View>
           </View>
 
@@ -76,8 +83,12 @@ const ResultCard = ({ item, index, colors }: ResultCardProps) => {
           <View style={styles.cardRow}>
             <Feather name="message-circle" size={22} color={colors.tint} style={styles.icon} />
             <View style={styles.cardTextContainer}>
-              <HeroText.Heading type="h4" style={styles.cardLabel}>Comment</HeroText.Heading>
-              <HeroText.Paragraph style={styles.cardValue}>{item.comment}</HeroText.Paragraph>
+              <HeroText.Heading type="h4" className="text-foreground font-cairo font-bold text-base mb-0.5">
+                Comment
+              </HeroText.Heading>
+              <HeroText.Paragraph className="text-muted font-cairo text-sm leading-relaxed">
+                {item.comment}
+              </HeroText.Paragraph>
             </View>
           </View>
 
@@ -86,8 +97,12 @@ const ResultCard = ({ item, index, colors }: ResultCardProps) => {
           <View style={styles.cardRow}>
             <Feather name="clipboard" size={22} color={colors.tint} style={styles.icon} />
             <View style={styles.cardTextContainer}>
-              <HeroText.Heading type="h4" style={styles.cardLabel}>Medical Recommendation</HeroText.Heading>
-              <HeroText.Paragraph style={styles.cardValue}>{item.medicalRecommendation}</HeroText.Paragraph>
+              <HeroText.Heading type="h4" className="text-foreground font-cairo font-bold text-base mb-0.5">
+                Medical Recommendation
+              </HeroText.Heading>
+              <HeroText.Paragraph className="text-muted font-cairo text-sm leading-relaxed">
+                {item.medicalRecommendation}
+              </HeroText.Paragraph>
             </View>
           </View>
         </Card.Body>
@@ -140,61 +155,65 @@ export default function ResultsScreen() {
   }));
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Animated.View style={titleAnimatedStyle}>
-          <HeroText.Heading type="h1" style={styles.title}>
-            Diabetic Retinopathy Screening Results
-          </HeroText.Heading>
-        </Animated.View>
+    <Surface variant="default" style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Animated.View style={titleAnimatedStyle}>
+            <HeroText.Heading type="h1" className="text-2xl font-bold font-cairo text-foreground text-center mb-5">
+              Diabetic Retinopathy Screening Results
+            </HeroText.Heading>
+          </Animated.View>
 
-        <FlatList
-          data={screeningData}
-          renderItem={({ item, index }) => <ResultCard item={item} index={index} colors={colors} />}
-          keyExtractor={item => item.id}
-          scrollEnabled={false}
-        />
-
-        <View style={styles.imagePreviewContainer}>
-          <HeroText.Heading type="h2" style={styles.imagePreviewTitle}>Captured Images</HeroText.Heading>
           <FlatList
-            data={images}
-            renderItem={({ item, index }) => (
-              <MemoizedImage
-                uri={item}
-                onPress={() => {
-                  setSelectedImage(item);
-                  setSelectedImageIndex(index);
-                  setIsModalVisible(true);
-                }}
-              />
-            )}
-            keyExtractor={item => item}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            initialNumToRender={3}
-            windowSize={3}
-            removeClippedSubviews={Platform.OS === 'android'}
+            data={screeningData}
+            renderItem={({ item, index }) => <ResultCard item={item} index={index} colors={colors} />}
+            keyExtractor={item => item.id}
+            scrollEnabled={false}
           />
-        </View>
-      </ScrollView>
 
-      <Button
-        variant="primary"
-        size="lg"
-        className="bg-accent mx-5 mb-5 py-4"
-        onPress={() => router.push('/')}
-      >
-        Back to Home
-      </Button>
+          <View style={styles.imagePreviewContainer}>
+            <HeroText.Heading type="h2" className="text-xl font-bold font-cairo text-foreground mb-3">
+              Captured Images
+            </HeroText.Heading>
+            <FlatList
+              data={images}
+              renderItem={({ item, index }) => (
+                <MemoizedImage
+                  uri={item}
+                  onPress={() => {
+                    setSelectedImage(item);
+                    setSelectedImageIndex(index);
+                    setIsModalVisible(true);
+                  }}
+                />
+              )}
+              keyExtractor={item => item}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              initialNumToRender={3}
+              windowSize={3}
+              removeClippedSubviews={Platform.OS === 'android'}
+            />
+          </View>
+        </ScrollView>
 
-      <ImageViewerModal
-        visible={isModalVisible}
-        imageUrl={selectedImage}
-        imageIndex={selectedImageIndex}
-        onClose={() => setIsModalVisible(false)}
-      />
-    </SafeAreaView>
+        <Button
+          variant="primary"
+          size="lg"
+          className="bg-accent mx-5 mb-5 py-4"
+          onPress={() => router.push('/')}
+        >
+          Back to Home
+        </Button>
+
+        <ImageViewerModal
+          visible={isModalVisible}
+          imageUrl={selectedImage}
+          imageIndex={selectedImageIndex}
+          onClose={() => setIsModalVisible(false)}
+        />
+      </SafeAreaView>
+    </Surface>
   );
 }
 
@@ -207,14 +226,6 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
     padding: 20,
     paddingBottom: 100,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#333D47',
-    fontFamily: 'Cairo',
-  },
   cardRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -226,28 +237,8 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
   cardTextContainer: {
     flex: 1,
   },
-  cardLabel: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#333D47',
-    fontFamily: 'Cairo',
-    marginBottom: 2,
-  },
-  cardValue: {
-    fontSize: 15,
-    color: '#546E7A',
-    fontFamily: 'Cairo',
-    lineHeight: 22,
-  },
   imagePreviewContainer: {
     marginTop: 15,
-  },
-  imagePreviewTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    fontFamily: 'Cairo',
-    marginBottom: 10,
-    color: '#333D47',
   },
   previewImage: {
     width: 100,
