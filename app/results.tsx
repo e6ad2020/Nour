@@ -2,8 +2,8 @@ import ImageViewerModal from '@/components/ImageViewerModal';
 import { Colors } from '@/constants/theme';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { memo, useEffect, useMemo, useState } from 'react';
-import { FlatList, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import React, { memo, useEffect, useState } from 'react';
+import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -121,18 +121,27 @@ const MemoizedImage = memo(function MemoizedImage({ uri, onPress }: { uri: strin
 });
 MemoizedImage.displayName = 'MemoizedImage';
 
+function parseImagesParam(rawImages: unknown): string[] {
+  if (!rawImages) return [];
+  if (Array.isArray(rawImages)) {
+    return (rawImages as any[]).map(img => String(img));
+  }
+  if (typeof rawImages === 'string') {
+    try {
+      const parsed = JSON.parse(rawImages);
+      if (Array.isArray(parsed)) return parsed.map(img => String(img));
+      return [rawImages];
+    } catch {
+      return [rawImages];
+    }
+  }
+  return [];
+}
+
 export default function ResultsScreen() {
   const params = useLocalSearchParams();
-  const images = useMemo<string[]>(() => {
-    if (!params.images) return [];
-    try {
-      const parsedImages = JSON.parse(params.images as string);
-      return Array.isArray(parsedImages) ? parsedImages : [];
-    } catch (error) {
-      console.error("Error parsing images:", error);
-      return [];
-    }
-  }, [params.images]);
+  const images = parseImagesParam(params.images);
+
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -171,27 +180,36 @@ export default function ResultsScreen() {
 
           <View style={styles.imagePreviewContainer}>
             <HeroText.Heading type="h2" className="text-xl font-bold font-cairo text-foreground mb-3">
-              Captured Images
+              Captured Images ({images.length})
             </HeroText.Heading>
-            <FlatList
-              data={images}
-              renderItem={({ item, index }) => (
-                <MemoizedImage
-                  uri={item}
-                  onPress={() => {
-                    setSelectedImage(item);
-                    setSelectedImageIndex(index);
-                    setIsModalVisible(true);
-                  }}
-                />
-              )}
-              keyExtractor={item => item}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              initialNumToRender={3}
-              windowSize={3}
-              removeClippedSubviews={Platform.OS === 'android'}
-            />
+            {images.length > 0 ? (
+              <FlatList
+                data={images}
+                renderItem={({ item, index }) => (
+                  <MemoizedImage
+                    uri={item}
+                    onPress={() => {
+                      setSelectedImage(item);
+                      setSelectedImageIndex(index);
+                      setIsModalVisible(true);
+                    }}
+                  />
+                )}
+                keyExtractor={(item, index) => `${item}-${index}`}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                initialNumToRender={3}
+                windowSize={3}
+                contentContainerStyle={{ paddingVertical: 4 }}
+              />
+            ) : (
+              <View style={styles.noImagesBox}>
+                <Feather name="image" size={24} color="#94A3B8" />
+                <HeroText.Paragraph className="text-muted font-cairo text-sm mt-1">
+                  No images captured for this session
+                </HeroText.Paragraph>
+              </View>
+            )}
           </View>
         </ScrollView>
 
@@ -239,9 +257,21 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
     marginTop: 15,
   },
   previewImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
+    width: 110,
+    height: 110,
+    borderRadius: 14,
     marginRight: 10,
+    backgroundColor: '#F1F5F9',
+  },
+  noImagesBox: {
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

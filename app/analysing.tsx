@@ -1,10 +1,9 @@
 import { Feather } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button } from 'heroui-native/button';
 import { Card } from 'heroui-native/card';
 import { Chip } from 'heroui-native/chip';
 import { Spinner } from 'heroui-native/spinner';
@@ -51,15 +50,14 @@ export default function AnalysingScreen() {
       <SafeAreaView style={styles.safeArea}>
         {/* Top Header Bar */}
         <View style={styles.topBar}>
-          <Button
-            variant="ghost"
-            size="sm"
-            isIconOnly
+          <TouchableOpacity
             onPress={() => router.push('/')}
-            className="w-10 h-10 rounded-full items-center justify-center"
+            style={styles.backButton}
+            activeOpacity={0.7}
+            accessibilityLabel="Back to home"
           >
-            <Feather name="chevron-left" size={28} color="#333D47" />
-          </Button>
+            <Feather name="chevron-left" size={26} color="#333D47" style={{ marginLeft: -2 }} />
+          </TouchableOpacity>
         </View>
 
         {/* Main Centered Content */}
@@ -106,12 +104,20 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     zIndex: 10,
   },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   centerContent: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
-    marginTop: -40,
+    paddingBottom: 40,
   },
   percentageRow: {
     flexDirection: 'row',

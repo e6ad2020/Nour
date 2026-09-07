@@ -2,7 +2,8 @@ import { Colors } from '@/constants/theme';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { ComponentProps, useEffect, useRef, useState } from 'react';
-import { Dimensions, NativeSyntheticEvent, NativeScrollEvent, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Dimensions, NativeSyntheticEvent, NativeScrollEvent, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Button } from 'heroui-native/button';
 import { Card } from 'heroui-native/card';
@@ -58,17 +59,18 @@ export default function DirectionsScreen() {
     router.push('/camera');
   };
 
+  const insets = useSafeAreaInsets();
+
   return (
     <Surface variant="default" style={styles.container}>
-      <Button
-        variant="ghost"
-        size="sm"
-        isIconOnly
-        className="absolute top-12 left-5 z-20 w-11 h-11 rounded-full items-center justify-center"
+      <TouchableOpacity
+        style={[styles.backButton, { top: insets.top + 8, left: 16 }]}
         onPress={() => router.back()}
+        activeOpacity={0.7}
+        accessibilityLabel="Go back"
       >
-        <Feather name="chevron-left" size={28} color="#333D47" />
-      </Button>
+        <Feather name="chevron-left" size={26} color="#333D47" style={{ marginLeft: -2 }} />
+      </TouchableOpacity>
 
       <ScrollView
         ref={scrollViewRef}
@@ -144,5 +146,15 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+  },
+  backButton: {
+    position: 'absolute',
+    zIndex: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
