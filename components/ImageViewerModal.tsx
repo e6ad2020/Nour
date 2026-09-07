@@ -47,6 +47,7 @@ export default function ImageViewerModal({ visible, imageUrl, imageIndex, onClos
   });
 
   const handleClose = () => {
+    // eslint-disable-next-line react-hooks/immutability
     scale.value = withTiming(1);
     setShowAttentionMap(false);
     onClose();

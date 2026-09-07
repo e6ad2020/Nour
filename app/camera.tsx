@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { View, StyleSheet, useColorScheme } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { CameraView, useCameraPermissions, CameraType } from 'expo-camera';
 import { MaterialIcons, Feather } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
@@ -251,10 +252,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   camera: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   shutter: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'black',
     zIndex: 10,
   },

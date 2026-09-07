@@ -7,13 +7,11 @@
     "icon": "./assets/images/icon.png",
     "scheme": "nour",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "icon": "./assets/images/icon.png",
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.Nour.App"
     },

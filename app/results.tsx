@@ -2,8 +2,9 @@ import ImageViewerModal from '@/components/ImageViewerModal';
 import { Colors } from '@/constants/theme';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { memo, useEffect, useState } from 'react';
-import { FlatList, Platform, ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
+import React, { memo, useEffect, useMemo, useState } from 'react';
+import { FlatList, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -122,7 +123,16 @@ MemoizedImage.displayName = 'MemoizedImage';
 
 export default function ResultsScreen() {
   const params = useLocalSearchParams();
-  const [images, setImages] = useState<string[]>([]);
+  const images = useMemo<string[]>(() => {
+    if (!params.images) return [];
+    try {
+      const parsedImages = JSON.parse(params.images as string);
+      return Array.isArray(parsedImages) ? parsedImages : [];
+    } catch (error) {
+      console.error("Error parsing images:", error);
+      return [];
+    }
+  }, [params.images]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -131,18 +141,6 @@ export default function ResultsScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const styles = getStyles(colors);
-
-  useEffect(() => {
-    if (params.images) {
-      try {
-        const parsedImages = JSON.parse(params.images as string);
-        setImages(Array.isArray(parsedImages) ? parsedImages : []);
-      } catch (error) {
-        console.error("Error parsing images:", error);
-        setImages([]);
-      }
-    }
-  }, [params.images]);
 
   useEffect(() => {
     titleOpacity.value = withTiming(1, { duration: 500 });
