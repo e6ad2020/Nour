@@ -146,7 +146,7 @@ export default function CameraScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsMultipleSelection: true,
       selectionLimit: 3 - capturedImages.length,
       quality: 0.8,

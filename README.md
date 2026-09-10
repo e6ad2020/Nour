@@ -141,7 +141,7 @@ Nour/
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/Nour.git
+git clone https://github.com/e6ad2020/Nour.git
 cd Nour
 
 # Install dependencies
@@ -212,7 +212,6 @@ npm run android
 | `npm run ios` | Starts the dev server and launches on iOS simulator (macOS) |
 | `npm run web` | Serves the application as a responsive Progressive Web App |
 | `npm run lint` | Runs ESLint across all project source files |
-| `npm run reset-project` | Resets the starter project to a clean template |
 
 ---
 

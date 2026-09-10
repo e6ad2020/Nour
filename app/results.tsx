@@ -171,12 +171,9 @@ export default function ResultsScreen() {
             </HeroText.Heading>
           </Animated.View>
 
-          <FlatList
-            data={screeningData}
-            renderItem={({ item, index }) => <ResultCard item={item} index={index} colors={colors} />}
-            keyExtractor={item => item.id}
-            scrollEnabled={false}
-          />
+          {screeningData.map((item, index) => (
+            <ResultCard key={item.id} item={item} index={index} colors={colors} />
+          ))}
 
           <View style={styles.imagePreviewContainer}>
             <HeroText.Heading type="h2" className="text-xl font-bold font-cairo text-foreground mb-3">

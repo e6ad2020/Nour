@@ -33,7 +33,13 @@
           }
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Nour to access the camera for retinal eye screening."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
