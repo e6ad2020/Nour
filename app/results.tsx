@@ -13,7 +13,6 @@ import { Card } from 'heroui-native/card';
 import { Chip } from 'heroui-native/chip';
 import { Separator } from 'heroui-native/separator';
 import { PressableFeedback } from 'heroui-native/pressable-feedback';
-import { Surface } from 'heroui-native/surface';
 import { Text as HeroText } from 'heroui-native/text';
 
 // Mock data for the diabetic retinopathy screening results
@@ -162,71 +161,72 @@ export default function ResultsScreen() {
   }));
 
   return (
-    <Surface variant="default" style={styles.container}>
-      <SafeAreaView style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Animated.View style={titleAnimatedStyle}>
-            <HeroText.Heading type="h1" className="text-2xl font-bold font-cairo text-foreground text-center mb-5">
-              Diabetic Retinopathy Screening Results
-            </HeroText.Heading>
-          </Animated.View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Animated.View style={titleAnimatedStyle}>
+          <HeroText.Heading type="h1" className="text-2xl font-bold font-cairo text-foreground text-center mb-5" style={styles.centeredText}>
+            Diabetic Retinopathy Screening Results
+          </HeroText.Heading>
+        </Animated.View>
 
-          {screeningData.map((item, index) => (
-            <ResultCard key={item.id} item={item} index={index} colors={colors} />
-          ))}
+        {screeningData.map((item, index) => (
+          <ResultCard key={item.id} item={item} index={index} colors={colors} />
+        ))}
 
-          <View style={styles.imagePreviewContainer}>
-            <HeroText.Heading type="h2" className="text-xl font-bold font-cairo text-foreground mb-3">
-              Captured Images ({images.length})
-            </HeroText.Heading>
-            {images.length > 0 ? (
-              <FlatList
-                data={images}
-                renderItem={({ item, index }) => (
-                  <MemoizedImage
-                    uri={item}
-                    onPress={() => {
-                      setSelectedImage(item);
-                      setSelectedImageIndex(index);
-                      setIsModalVisible(true);
-                    }}
-                  />
-                )}
-                keyExtractor={(item, index) => `${item}-${index}`}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                initialNumToRender={3}
-                windowSize={3}
-                contentContainerStyle={{ paddingVertical: 4 }}
-              />
-            ) : (
-              <View style={styles.noImagesBox}>
-                <Feather name="image" size={24} color="#94A3B8" />
-                <HeroText.Paragraph className="text-muted font-cairo text-sm mt-1">
-                  No images captured for this session
-                </HeroText.Paragraph>
-              </View>
-            )}
-          </View>
-        </ScrollView>
+        <View style={styles.imagePreviewContainer}>
+          <HeroText.Heading type="h2" className="text-xl font-bold font-cairo text-foreground mb-3">
+            Captured Images ({images.length})
+          </HeroText.Heading>
+          {images.length > 0 ? (
+            <FlatList
+              data={images}
+              renderItem={({ item, index }) => (
+                <MemoizedImage
+                  uri={item}
+                  onPress={() => {
+                    setSelectedImage(item);
+                    setSelectedImageIndex(index);
+                    setIsModalVisible(true);
+                  }}
+                />
+              )}
+              keyExtractor={(item, index) => `${item}-${index}`}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              initialNumToRender={3}
+              windowSize={3}
+              contentContainerStyle={{ paddingVertical: 4 }}
+            />
+          ) : (
+            <View style={styles.noImagesBox}>
+              <Feather name="image" size={24} color="#94A3B8" />
+              <HeroText.Paragraph className="text-muted font-cairo text-sm mt-1">
+                No images captured for this session
+              </HeroText.Paragraph>
+            </View>
+          )}
+        </View>
+      </ScrollView>
 
-        <Button
-          variant="primary"
-          size="lg"
-          className="bg-accent mx-5 mb-5 py-4"
-          onPress={() => router.push('/')}
-        >
+      <Button
+        variant="primary"
+        size="lg"
+        className="bg-accent mx-5 mb-5"
+        style={styles.homeButton}
+        onPress={() => router.push('/')}
+      >
+        <Button.Label style={styles.homeButtonLabel}>
           Back to Home
-        </Button>
+        </Button.Label>
+      </Button>
 
-        <ImageViewerModal
-          visible={isModalVisible}
-          imageUrl={selectedImage}
-          imageIndex={selectedImageIndex}
-          onClose={() => setIsModalVisible(false)}
-        />
-      </SafeAreaView>
-    </Surface>
+      <ImageViewerModal
+        visible={isModalVisible}
+        imageUrl={selectedImage}
+        imageIndex={selectedImageIndex}
+        onClose={() => setIsModalVisible(false)}
+      />
+    </SafeAreaView>
   );
 }
 
@@ -237,7 +237,19 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-    paddingBottom: 100,
+    paddingBottom: 24,
+  },
+  centeredText: {
+    textAlign: 'center',
+  },
+  homeButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  homeButtonLabel: {
+    flex: 1,
+    textAlign: 'center',
   },
   cardRow: {
     flexDirection: 'row',

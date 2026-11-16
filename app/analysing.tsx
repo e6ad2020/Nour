@@ -1,3 +1,5 @@
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Feather } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -7,13 +9,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from 'heroui-native/card';
 import { Chip } from 'heroui-native/chip';
 import { Spinner } from 'heroui-native/spinner';
-import { Surface } from 'heroui-native/surface';
 import { Text } from 'heroui-native/text';
 
 export default function AnalysingScreen() {
   const params = useLocalSearchParams();
   const [percentage, setPercentage] = useState(0);
   const progress = useSharedValue(0);
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
   useFocusEffect(
     useCallback(() => {
@@ -46,49 +49,47 @@ export default function AnalysingScreen() {
   });
 
   return (
-    <Surface variant="default" style={styles.safeArea}>
-      <SafeAreaView style={styles.safeArea}>
-        {/* Top Header Bar */}
-        <View style={styles.topBar}>
-          <TouchableOpacity
-            onPress={() => router.push('/')}
-            style={styles.backButton}
-            activeOpacity={0.7}
-            accessibilityLabel="Back to home"
-          >
-            <Feather name="chevron-left" size={26} color="#333D47" style={{ marginLeft: -2 }} />
-          </TouchableOpacity>
-        </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      {/* Top Header Bar */}
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          onPress={() => router.push('/')}
+          style={styles.backButton}
+          activeOpacity={0.7}
+          accessibilityLabel="Back to home"
+        >
+          <Feather name="chevron-left" size={26} color="#333D47" style={{ marginLeft: -2 }} />
+        </TouchableOpacity>
+      </View>
 
-        {/* Main Centered Content */}
-        <View style={styles.centerContent}>
-          {/* Status Badge */}
-          <Chip
-            variant="primary"
-            color="accent"
-            size="lg"
-            className="px-8 py-3 mb-8 shadow-sm self-center"
-          >
-            Analysing
-          </Chip>
+      {/* Main Centered Content */}
+      <View style={styles.centerContent}>
+        {/* Status Badge */}
+        <Chip
+          variant="primary"
+          color="accent"
+          size="lg"
+          className="px-8 py-3 mb-8 shadow-sm self-center"
+        >
+          Analysing
+        </Chip>
 
-          {/* Progress Card */}
-          <Card className="w-72 h-72 items-center justify-center rounded-3xl bg-surface shadow-md border border-border">
-            <Card.Body className="items-center justify-center p-6 w-full gap-4">
-              <View style={styles.percentageRow}>
-                <Animated.Text style={[styles.percentageNumber, animatedStyle]}>
-                  {percentage}
-                </Animated.Text>
-                <Text.Heading type="h2" style={styles.percentageSymbol}>
-                  %
-                </Text.Heading>
-              </View>
-              <Spinner color="#007bff" size="lg" className="mt-2" />
-            </Card.Body>
-          </Card>
-        </View>
-      </SafeAreaView>
-    </Surface>
+        {/* Progress Card */}
+        <Card className="w-72 h-72 items-center justify-center rounded-3xl bg-surface shadow-md border border-border">
+          <Card.Body className="items-center justify-center p-6 w-full gap-4">
+            <View style={styles.percentageRow}>
+              <Animated.Text style={[styles.percentageNumber, animatedStyle]}>
+                {percentage}
+              </Animated.Text>
+              <Text.Heading type="h2" style={styles.percentageSymbol}>
+                %
+              </Text.Heading>
+            </View>
+            <Spinner color="#007bff" size="lg" className="mt-2" />
+          </Card.Body>
+        </Card>
+      </View>
+    </SafeAreaView>
   );
 }
 

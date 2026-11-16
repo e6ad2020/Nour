@@ -2,13 +2,12 @@ import { Colors } from '@/constants/theme';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import { Button } from 'heroui-native/button';
 import { Card } from 'heroui-native/card';
 import { Chip } from 'heroui-native/chip';
-import { Surface } from 'heroui-native/surface';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -49,7 +48,7 @@ export default function HomeScreen() {
   const styles = getStyles(colors);
 
   return (
-    <Surface variant="default" style={styles.container}>
+    <View style={styles.container}>
       <Animated.View style={[styles.logoContainer, logoAnimatedStyle]}>
         <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
       </Animated.View>
@@ -61,27 +60,30 @@ export default function HomeScreen() {
       </Animated.View>
       
       <Animated.View style={[styles.scanCardWrapper, scanCardAnimatedStyle]}>
-        <Card className="p-7 items-center justify-center rounded-3xl bg-surface shadow-md border border-border">
+        <Card className="w-full p-7 items-center justify-center rounded-3xl bg-surface shadow-md border border-border">
           <Card.Body className="items-center w-full">
             <Feather name="camera" size={54} color={colors.tint} />
-            <Card.Title className="text-xl font-bold font-cairo text-foreground mt-3 mb-1 text-center">
+            <Card.Title className="text-xl font-bold font-cairo text-foreground mt-3 mb-1 text-center" style={styles.centeredText}>
               Eye Screening
             </Card.Title>
-            <Card.Description className="text-sm font-cairo text-muted mb-4 text-center px-2">
+            <Card.Description className="text-sm font-cairo text-muted mb-4 text-center px-2" style={styles.centeredText}>
               Start a high-accuracy diabetic retinopathy retinal scan
             </Card.Description>
             <Button
               variant="primary"
               size="lg"
-              className="mt-2 px-10 py-3.5 w-full"
+              className="mt-2 w-full"
+              style={styles.getStartedButton}
               onPress={() => router.push('/directions')}
             >
-              Get Started
+              <Button.Label style={styles.getStartedButtonLabel}>
+                Get Started
+              </Button.Label>
             </Button>
           </Card.Body>
         </Card>
       </Animated.View>
-    </Surface>
+    </View>
   );
 }
 
@@ -96,18 +98,35 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   logoContainer: {
     marginBottom: 10,
+    width: '100%',
+    alignItems: 'center',
   },
   logo: {
-    width: 350,
-    height: 350,
+    width: '100%',
+    maxWidth: 340,
+    height: 320,
     resizeMode: 'contain',
   },
   welcomeContainer: {
     marginBottom: 30,
+    alignItems: 'center',
   },
   scanCardWrapper: {
     width: '100%',
     maxWidth: 340,
     alignItems: 'center',
+  },
+  centeredText: {
+    textAlign: 'center',
+  },
+  getStartedButton: {
+    width: '100%',
+    paddingHorizontal: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  getStartedButtonLabel: {
+    flex: 1,
+    textAlign: 'center',
   },
 });

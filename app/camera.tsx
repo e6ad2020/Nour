@@ -83,19 +83,27 @@ export default function CameraScreen() {
   if (!permission.granted) {
     return (
       <SafeAreaView style={[styles.permissionContainer, { backgroundColor: colors.background }]}>
-        <Card className="p-6 items-center rounded-3xl bg-surface max-w-sm shadow-md border border-border">
-          <Card.Header className="items-center mb-2">
+        <Card className="w-full p-6 items-center rounded-3xl bg-surface max-w-sm shadow-md border border-border">
+          <Card.Header className="w-full items-center mb-2">
             <Feather name="camera-off" size={48} color={colors.tint} />
-            <Card.Title className="text-center font-bold font-cairo mt-3 text-foreground text-xl">
+            <Card.Title className="text-center font-bold font-cairo mt-3 text-foreground text-xl" style={{ textAlign: 'center' }}>
               Camera Access Required
             </Card.Title>
           </Card.Header>
           <Card.Body className="items-center w-full">
-            <Card.Description className="text-center font-cairo text-muted mb-5 text-base">
+            <Card.Description className="text-center font-cairo text-muted mb-5 text-base" style={{ textAlign: 'center' }}>
               We need your permission to access the camera for eye screening.
             </Card.Description>
-            <Button variant="primary" size="lg" className="w-full" onPress={requestPermission}>
-              Grant Permission
+            <Button
+              variant="primary"
+              size="lg"
+              className="w-full"
+              style={{ width: '100%', paddingHorizontal: 24, justifyContent: 'center', alignItems: 'center' }}
+              onPress={requestPermission}
+            >
+              <Button.Label style={{ flex: 1, textAlign: 'center' }}>
+                Grant Permission
+              </Button.Label>
             </Button>
           </Card.Body>
         </Card>
