@@ -8,7 +8,7 @@ import 'react-native-reanimated';
 import { useEffect } from 'react';
 import { setBackgroundColorAsync } from 'expo-system-ui';
 import { I18nManager } from 'react-native';
-import { Uniwind } from 'uniwind';
+import { LayoutDirection, Uniwind } from 'uniwind';
 
 import { useLoadFonts } from '@/hooks/use-load-fonts';
 import { Colors } from '@/constants/theme';
@@ -54,23 +54,25 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent' }}>
-      <HeroUINativeProvider>
-        <ThemeProvider value={MyLightTheme}>
-          <Stack
-            screenOptions={{
-              animation: 'fade',
-            }}
-          >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="camera" options={{ headerShown: false }} />
-            <Stack.Screen name="results" options={{ headerShown: false }} />
-            <Stack.Screen name="analysing" options={{ headerShown: false }} />
-            <Stack.Screen name="directions" options={{ headerShown: false }} />
-          </Stack>
-          <StatusBar style="dark" />
-        </ThemeProvider>
-      </HeroUINativeProvider>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent', direction: 'ltr' }}>
+      <LayoutDirection rtl={false}>
+        <HeroUINativeProvider config={{ isRTL: false }}>
+          <ThemeProvider value={MyLightTheme}>
+            <Stack
+              screenOptions={{
+                animation: 'fade',
+              }}
+            >
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="camera" options={{ headerShown: false }} />
+              <Stack.Screen name="results" options={{ headerShown: false }} />
+              <Stack.Screen name="analysing" options={{ headerShown: false }} />
+              <Stack.Screen name="directions" options={{ headerShown: false }} />
+            </Stack>
+            <StatusBar style="dark" />
+          </ThemeProvider>
+        </HeroUINativeProvider>
+      </LayoutDirection>
     </GestureHandlerRootView>
   );
 }
